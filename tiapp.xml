@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ti:app xmlns:ti="http://ti.appcelerator.org">
+    <property name="acs-oauth-secret-production" type="string">EcFImwo4TUQpA9WB39bg6tG2dUtTLvoV</property>
+    <property name="acs-oauth-key-production" type="string">7NdcaKn4nHl8a3KRcUWhTe9zUg6lrv9q</property>
+    <property name="acs-api-key-production" type="string">vzvKRKWLfX4uMptjCV5LUyFBhXeFXJoJ</property>
+    <property name="acs-oauth-secret-development" type="string">2GVGszOSJVXxl8mtF39E1Ol6wZR9aQsh</property>
+    <property name="acs-oauth-key-development" type="string">XhPPD0uSSOfYk9UKvQcRRmgv7jmQhU80</property>
+    <property name="acs-api-key-development" type="string">cVbvY09lH00uAP5bVqSRkLVHHQZs9Ubm</property>
+    <deployment-targets>
+        <target device="mobileweb">true</target>
+        <target device="iphone">true</target>
+        <target device="ipad">true</target>
+        <target device="android">true</target>
+        <target device="blackberry">false</target>
+    </deployment-targets>
+    <sdk-version>2.1.4.GA</sdk-version>
+    <id>com.myforex.ccs</id>
+    <name>myForex</name>
+    <version>1.0</version>
+    <publisher>Darren</publisher>
+    <url>http://</url>
+    <description>not specified</description>
+    <copyright>2012 by Darren</copyright>
+    <icon>appicon.png</icon>
+    <persistent-wifi>false</persistent-wifi>
+    <prerendered-icon>false</prerendered-icon>
+    <statusbar-style>default</statusbar-style>
+    <statusbar-hidden>false</statusbar-hidden>
+    <fullscreen>false</fullscreen>
+    <navbar-hidden>false</navbar-hidden>
+    <analytics>true</analytics>
+    <guid>1c7b03ce-24ed-48aa-98ee-418256d0fc77</guid>
+    <property name="ti.ui.defaultunit">system</property>
+    <iphone>
+        <orientations device="iphone">
+            <orientation>Ti.UI.PORTRAIT</orientation>
+        </orientations>
+        <orientations device="ipad">
+            <orientation>Ti.UI.PORTRAIT</orientation>
+            <orientation>Ti.UI.UPSIDE_PORTRAIT</orientation>
+            <orientation>Ti.UI.LANDSCAPE_LEFT</orientation>
+            <orientation>Ti.UI.LANDSCAPE_RIGHT</orientation>
+        </orientations>
+    </iphone>
+    <android xmlns:android="http://schemas.android.com/apk/res/android"/>
+    <mobileweb>
+        <precache/>
+        <splash>
+            <enabled>true</enabled>
+            <inline-css-images>true</inline-css-images>
+        </splash>
+        <theme>default</theme>
+    </mobileweb>
+    <modules>
+        <module platform="commonjs" version="2.3.0">ti.cloud</module>
+    </modules>
+</ti:app>
