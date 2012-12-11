@@ -29,7 +29,8 @@ function populateTable(_args) {
 	for (var i in rates) {
 		var tableRow = Ti.UI.createTableViewRow({
 			height: 70,
-			className: 'RSSRow'
+			className: 'RSSRow',
+			hasDetail: true,
 		});
 		var layout = Ti.UI.createView({});
 		
@@ -106,6 +107,17 @@ function createCurrencyPicker() {
 	return currencyPicker;
 };
 
+function showCurrencyDetail(_args) {
+	// get the custom object for this pair from ACS
+	
+	// display the currency value, 
+	
+	// store a timestamp of the current value key value pairs?
+	
+	// Add any commentary, and valid flag
+	
+};
+
 // this sets the background color of the master UIView (when there are no windows/tab groups on it)
 Titanium.UI.setBackgroundColor('#000');
 
@@ -120,6 +132,7 @@ var vertLayout = Ti.UI.createView({layout:'vertical'});
 
 
 var stockList = Ti.UI.createTableView({});
+stockList.addEventListener('click', function(e) {showCurrencyDetail(e)});
 
 var picker = createCurrencyPicker();
 
