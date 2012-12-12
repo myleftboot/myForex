@@ -1,5 +1,8 @@
 // All source code Copyright 2013 Cope Consultancy Services. All rights reserved
 
+var currencyListWindow = Ti.UI.createWindow({title: 'Currencies'});
+var CurrencyDetail = require('forexCommentaryView');
+var currencyDetail = new CurrencyDetail();
 
 function fetchValues(_args) {
 	// returns a list of prices from an array of stocks
@@ -24,8 +27,10 @@ function fetchValues(_args) {
 function populateTable(_args) {
 	var tabRows = [];
 	// we need to make single objects returned into an array
-	
-	var rates = (_args.JSON.rate instanceof Array) ? _args.JSON.rate : [_args.JSON.rate];
+	try { var rates = (_args.JSON.rate instanceof Array) ? _args.JSON.rate : [_args.JSON.rate];
+	} catch (e) {
+		return;
+	}
 	for (var i in rates) {
 		var tableRow = Ti.UI.createTableViewRow({
 			height: 70,
@@ -55,6 +60,11 @@ function populateTable(_args) {
 		});
 		layout.add(pair);
 		layout.add(value);
+		
+		// set some row context
+		tableRow.pair = rates[i].Name;
+		tableRow.rate = rates[i].Rate;
+		
 		tableRow.add(layout);
 		
 		tabRows.push(tableRow);
@@ -108,6 +118,13 @@ function createCurrencyPicker() {
 };
 
 function showCurrencyDetail(_args) {
+	
+	currencyDetail.fireEvent('currencySelected', {
+			pair:_args.rowData.pair,
+			rate:_args.rowData.rate
+		});
+	
+	navGroup.open(currencyDetail);
 	// get the custom object for this pair from ACS
 	
 	// display the currency value, 
@@ -130,7 +147,6 @@ var win1 = Ti.UI.createWindow({
 
 var vertLayout = Ti.UI.createView({layout:'vertical'});
 
-
 var stockList = Ti.UI.createTableView({});
 stockList.addEventListener('click', function(e) {showCurrencyDetail(e)});
 
@@ -143,7 +159,14 @@ picker.addEventListener('change', function(e) {refreshCurrencies({value: e.selec
 vertLayout.add(picker);
 vertLayout.add(stockList);
 
-win1.add(vertLayout);
+currencyListWindow.add(vertLayout);
+
+var navGroup = Ti.UI.iPhone.createNavigationGroup({
+	window:currencyListWindow
+});
+win1.add(navGroup);
 
 win1.open();
+
+picker.setSelectedRow(0,0);
 
