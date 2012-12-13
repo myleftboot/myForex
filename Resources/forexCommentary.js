@@ -36,12 +36,6 @@ function addCommentary(_args) {
 	    }
 	}, function (e) {
 	    if (e.success) {
-	        var comment = e.forexCommentary[0];
-	        alert('Success:\\n' +
-	            'pair: ' + comment.pair + '\\n' +
-	            'rate: ' + comment.rate + '\\n' +
-	            'comment: ' + comment.comment + '\\n' +
-	            'created_at: ' + comment.created_at);
 	        _args.success(e.forexCommentary[0]);
 	    } else {
 		    _args.error({error: e.error});
@@ -52,11 +46,11 @@ exports.addCommentary = addCommentary;
 
 // The last three bits of commentary - for the iPad version, on the front screen
 function getLast3Comments(_args) {
-	
+
 	Cloud.Objects.query({
 	    classname: className,
 	    limit:     3,
-	    order :    -created_at
+	    order :    '-created_at'
 	}, function (e) {
 	    if (e.success) {
 	        _args.success(e.forexCommentary);

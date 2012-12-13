@@ -1,8 +1,6 @@
 // All source code Copyright 2013 Cope Consultancy Services. All rights reserved
 
 var currencyListWindow = Ti.UI.createWindow({title: 'Currencies'});
-var CurrencyDetail = require('forexCommentaryView');
-var currencyDetail = new CurrencyDetail();
 
 function fetchValues(_args) {
 	// returns a list of prices from an array of stocks
@@ -118,6 +116,8 @@ function createCurrencyPicker() {
 };
 
 function showCurrencyDetail(_args) {
+	var CurrencyDetail = require('forexCommentaryView');
+	var currencyDetail = new CurrencyDetail();
 	
 	currencyDetail.fireEvent('currencySelected', {
 			pair:_args.rowData.pair,
