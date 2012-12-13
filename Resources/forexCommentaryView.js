@@ -1,6 +1,7 @@
 function forexCommentaryView() {
 	var self = Ti.UI.createWindow({title: 'Forex Commentary'});
 	var forex = require('forexCommentary');
+	var parse = require('parseCommentary');
 	forex.init();
 	var thePair, theRate = null;
 	
@@ -35,10 +36,14 @@ function forexCommentaryView() {
 	  height : 150
 	});
 	
-	commentary.addEventListener('return', function(e) {forex.addCommentary({
+	commentary.addEventListener('return', function(e) {//forex.addCommentary({
+		                                               //      pair:       thePair, 
+		                                               //      rate:       theRate, 
+		                                               //      commentary: e.value});
+		                                               parse.addCommentary({
 		                                                     pair:       thePair, 
 		                                                     rate:       theRate, 
-		                                                     commentary: e.value})
+		                                                     commentary: e.value});
 		                                             });
 	// Additions for forex commentary
 	
