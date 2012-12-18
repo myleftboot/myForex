@@ -24,7 +24,6 @@ function addCommentary(_args) {
 	        comment: _args.commentary
 	   });
     // Send the request.
-    console.log(data);
     post.send(data); 
 };
 exports.addCommentary = addCommentary;

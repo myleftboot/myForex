@@ -166,7 +166,51 @@ var navGroup = Ti.UI.iPhone.createNavigationGroup({
 });
 win1.add(navGroup);
 
+Ti.include('analytics.js');
+var analytics = new Analytics('UA-36649942-1');  
+analytics.reset();
+
+Ti.App.addEventListener('app:analytics_trackPageview', function(e){
+	analytics.trackPageview('/' + e.pageUrl);
+});
+
+Ti.App.addEventListener('app:analytics_trackEvent', function(e){
+	console.log('Caught event '+e.action);
+	analytics.trackEvent(e.category, e.action, e.label, e.value);
+});
+
+
+analytics.start(5);
+Ti.App.fireEvent('app:analytics_trackPageview', {pageUrl: 'Front'});
+
 win1.open();
 
 picker.setSelectedRow(0,0);
 
+Ti.Network.registerForPushNotifications({
+  types: [
+    Ti.Network.NOTIFICATION_TYPE_BADGE,
+    Ti.Network.NOTIFICATION_TYPE_ALERT,
+    Ti.Network.NOTIFICATION_TYPE_SOUND
+  ],
+  success:function(e){
+    var UrbanAirship = require('urbanairship');
+    UrbanAirship.register({token   : e.deviceToken,
+                           key     : 'TqaKBprXTLC94fpBKJtFsQ',
+                           secret  : 'sV8wM0CaR0O2qjFpw4Q2Qg', 
+                           params  : {alias: 'The new user'},
+                           success : function(e) {alert(e.response)},
+                           error   : function(e) {alert(e.error)}
+    });
+  },
+  error:function(e) {
+    alert('Failed to register with APNS '+e.error);
+  },
+  callback:function(e) {
+    var a = Ti.UI.createAlertDialog({
+      title:'myForex',
+      message:e.data.alert
+    });
+    a.show();
+  }
+});

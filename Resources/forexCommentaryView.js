@@ -52,7 +52,7 @@ function forexCommentaryView() {
 		var moment = require('moment');
 
 		for (var i in _args) {
-
+console.log(_args[i]);
 			var tableRow = Ti.UI.createTableViewRow({
 				height: 70,
 				className: 'CommentaryRow',
