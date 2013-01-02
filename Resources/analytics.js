@@ -88,7 +88,7 @@ var Analytics = AnalyticsBase.extend({
 
 	//Constants
 	_PAGEVIEW:'__##PAGEVIEW##__',
-	_USER_AGENT:'GoogleAnalytics/1.0 ('+ Titanium.Platform.username +'; U; CPU '+ Titanium.Platform.name + ' ' + Titanium.Platform.version + ' like Mac OS X; ' + Titanium.Platform.locale + '-' + Titanium.Locale.getCurrentCountry() + ')',
+	_USER_AGENT:Titanium.App.name + '/' + Titanium.App.version + ' ('+ Titanium.Platform.username +'; U; CPU '+ Titanium.Platform.name + ' ' + Titanium.Platform.version + ' like Mac OS X; ' + Titanium.Platform.locale + '-' + Titanium.Locale.getCurrentCountry() + ')',
 	
 	//Private properties
 	_accountId: undefined,
@@ -104,7 +104,7 @@ var Analytics = AnalyticsBase.extend({
 	//Constructor: var analytics = new Analytics('UA-XXXXXXX-X');
 	init: function(accountId){
 		if(Ti.Platform.osname === 'android') {
-			this._USER_AGENT = 'GoogleAnalytics/1.0 (Linux; U; Android ' + Titanium.Platform.version + '; ' + Titanium.Locale.currentLocale + '; ' + Titanium.Platform.model + ')';
+			this._USER_AGENT = Titanium.App.name + '/' + Titanium.App.version + ' (Linux; U; Android ' + Titanium.Platform.version + '; ' + Titanium.Locale.currentLocale + '; ' + Titanium.Platform.model + ')';
 		}
 		this._accountId = accountId;
 		this._db = Titanium.Database.open('analytics');
