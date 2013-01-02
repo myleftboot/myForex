@@ -167,7 +167,7 @@ var navGroup = Ti.UI.iPhone.createNavigationGroup({
 win1.add(navGroup);
 
 Ti.include('analytics.js');
-var analytics = new Analytics('UA-36649942-1');  
+var analytics = new Analytics('UA-37362038-1');  
 analytics.reset();
 
 Ti.App.addEventListener('app:analytics_trackPageview', function(e){
@@ -175,7 +175,6 @@ Ti.App.addEventListener('app:analytics_trackPageview', function(e){
 });
 
 Ti.App.addEventListener('app:analytics_trackEvent', function(e){
-	console.log('Caught event '+e.action);
 	analytics.trackEvent(e.category, e.action, e.label, e.value);
 });
 

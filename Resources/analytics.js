@@ -115,13 +115,7 @@ var Analytics = AnalyticsBase.extend({
 	start: function(dispatchPeriod){
 		if (this.enabled) {
 			this._startNewVisit();
-			this._httpClient = Titanium.Network.createHTTPClient({    onload : function(e) {
-         console.log("Received text: " + this.responseText);
-     },
-     // function called when an error occurs, including a timeout
-     onerror : function(e) {
-         console.log(e.error);
-     }});
+			this._httpClient = Titanium.Network.createHTTPClient();
 			
 			var context = this;
 			setInterval(function(){
@@ -246,7 +240,6 @@ var Analytics = AnalyticsBase.extend({
 				};
 				
 				var path = this._constructRequestPath(event);
-console.log('http://www.google-analytics.com' + path);
 				this._httpClient.open('GET', 'http://www.google-analytics.com' + path, false);
 				this._httpClient.setRequestHeader('User-Agent', this._USER_AGENT);
 				this._httpClient.send();
