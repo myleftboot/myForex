@@ -10,43 +10,52 @@ var currencyListWindow = Ti.UI.createWindow({title: 'Currencies'});
 
 function fetchValues(_args) {
 	// returns a list of prices from an array of stocks
-	
+
 	if (_args.pairings.length > 0) {
 		var currencies = new String;
 		for (i=0; i< _args.pairings.length; i++) {
-			currencies += ',"'+_args.pairings[i]+'"';
+			currencies += ',"'+_args.pairings[i].pair+'"';
 		}
 		// lose the first character ','
 		currencies = currencies.substr(1);
-		
+
 		var theYql = 'SELECT * from yahoo.finance.xchange WHERE pair IN (' + currencies + ')';
 
 		// send the query off to yahoo
 		Ti.Yahoo.yql(theYql, function(e) {
-			populateTable({JSON: e.data});
+			updateCurrencies({JSON: e.data});
 		});
 	}
 };
 
-function populateTable(_args) {
+function updateCurrencies(_args) {
 	var tabRows = [];
 	// we need to make single objects returned into an array
 	try { var rates = (_args.JSON.rate instanceof Array) ? _args.JSON.rate : [_args.JSON.rate];
 	} catch (e) {
 		return;
 	}
+	var db = require('common/currencydb');
 	for (var i in rates) {
-		var tableRow = Ti.UI.createTableViewRow({
+		
+		db.updateRate({pair   : rates[i].Name
+		              ,rate   : rates[i].Rate});
+	}
+	stockList.setData(populateTableWithPairs());
+};
+
+function createRow(_args) {
+                var tableRow = Ti.UI.createTableViewRow({
 			height: 70,
 			className: 'RSSRow',
 			hasDetail: true,
 		});
 		var layout = Ti.UI.createView({});
-		
+
 		var pair = Ti.UI.createLabel({
-			text: rates[i].Name,
+			text: _args.pair
 			color: '#000',
-			height: 70,
+			height: 50,
 			font: {
 				fontSize: 16
 			},
@@ -54,7 +63,7 @@ function populateTable(_args) {
 		});
 
 		var value = Ti.UI.createLabel({
-			text:  rates[i].Rate,
+			text:  _args.rate,
 			color: 'blue',
 			height: 70,
 			font: {
@@ -64,81 +73,69 @@ function populateTable(_args) {
 		});
 		layout.add(pair);
 		layout.add(value);
-		
+
 		// set some row context
-		tableRow.pair = rates[i].Name;
-		tableRow.rate = rates[i].Rate;
-		
+		tableRow.pair = _args.pair;
+		tableRow.rate = _args.rate;
+
 		tableRow.add(layout);
 		
-		tabRows.push(tableRow);
+		return tableRow;
+}
+
+function populateTableWithPairs() {
+	var tabRows = [];
+	
+	var db = require('common/currencydb');
+	for (var dbVal in db.selectPairs()) {
+
+                // we dont know the currency values at this stage so just push the pairings
+                // we should store the latest values in the local database and populate the table with them here
+		tabRows.push(createRow({pair: dbVal.pair
+		                       ,rate: dbVal.lastRate}));
 	}
-	stockList.setData(tabRows);
-};
+	return tabRows;
+}
 
 function refreshCurrencies(_args) {
 	
-	Ti.App.fireEvent('app:analytics_trackEvent', {category:'Currency Selection', action:'Select Currency', value:_args.value});
-	//flurry.logEvent('Select Currency', {key: _args.value});
-	var db = Ti.Database.install('db/currencies.sqlite', 'currencies');
-	var data = db.execute('SELECT base||counter pair FROM currencies WHERE counter="'+_args.value+'";');
-	
-	var pairs = [];
-	var i = 0;
-	while (data.isValidRow()) {
-		pairs[i++] = data.fieldByName('pair');
-		data.next();
-	}
-	
-	data.close();
-	db.close();
-	
-	fetchValues({pairings: pairs});
+	var db = require('common/currencydb');
+	fetchValues({pairings: db.selectPairs()});
 };
 
-function createCurrencyPicker() {
-	var currencyPicker = Ti.UI.createPicker(
-		{height             :'40%',
-		 selectionIndicator : true});
-	
-	// populate the picker from the SQLite currencies
-	
-	// Database file already exists so we need to use install, to copy it to the internal storage
-	var db = Ti.Database.install('db/currencies.sqlite', 'currencies');
-	var data = db.execute('SELECT DISTINCT counter FROM currencies;');
-
-	var pickRow = [];
-	var i = 0;
-	while (data.isValidRow()) {
-		pickRow[i++] = Ti.UI.createPickerRow({title:data.fieldByName('counter')});
-		data.next();
-	}
-	
-	data.close();
-	db.close();
-	
-	currencyPicker.add(pickRow);
-	return currencyPicker;
-};
 
 function showCurrencyDetail(_args) {
 	var CurrencyDetail = require('forexCommentaryView');
 	var currencyDetail = new CurrencyDetail();
-	
+
 	currencyDetail.fireEvent('currencySelected', {
 			pair:_args.rowData.pair,
 			rate:_args.rowData.rate
 		});
-	
+
 	Forex.navGroup.open(currencyDetail);
 	// get the custom object for this pair from ACS
-	
+
 	// display the currency value, 
-	
+
 	// store a timestamp of the current value key value pairs?
-	
+
 	// Add any commentary, and valid flag
-	
+
+};
+
+function showPinBar(_args) {
+                var PBVw = require('view/pinbarentry');
+		var pbVw = new PBVw();
+
+		pbVw.fireEvent('popPinBar', {
+			pair:_args.rowData.pair,
+			risk:1,
+			rate:_args.rowData.rate
+		});
+
+		Forex.navGroup.open(pbVw);
+
 };
 
 // this sets the background color of the master UIView (when there are no windows/tab groups on it)
@@ -153,16 +150,11 @@ var win1 = Ti.UI.createWindow({
 
 var vertLayout = Ti.UI.createView({layout:'vertical'});
 
-var stockList = Ti.UI.createTableView({});
+var stockList = Ti.UI.createTableView({data: populateTableWithPairs()});
+
 stockList.addEventListener('click', function(e) {showCurrencyDetail(e)});
+stockList.addEventListener('click', function(e) {showPinBar(e)});
 
-var picker = createCurrencyPicker();
-
-//the selectedValue property returns an array. We are only interested in a single selected value so grabthe first element [0]
-picker.addEventListener('change', function(e) {refreshCurrencies({value: e.selectedValue[0]})
-						});
-
-vertLayout.add(picker);
 vertLayout.add(stockList);
 
 currencyListWindow.add(vertLayout);
@@ -189,8 +181,6 @@ analytics.start(5);
 Ti.App.fireEvent('app:analytics_trackPageview', {pageUrl: 'Front'});
 
 win1.open();
-
-picker.setSelectedRow(0,0);
 
 Ti.Network.registerForPushNotifications({
   types: [
