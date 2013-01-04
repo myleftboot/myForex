@@ -1,6 +1,12 @@
 // All source code Copyright 2013 Cope Consultancy Services. All rights reserved
 
+
+// Main Namespace
+var Forex = {navGroup: null // the navigation group
+	};
+
 var currencyListWindow = Ti.UI.createWindow({title: 'Currencies'});
+
 
 function fetchValues(_args) {
 	// returns a list of prices from an array of stocks
@@ -124,7 +130,7 @@ function showCurrencyDetail(_args) {
 			rate:_args.rowData.rate
 		});
 	
-	navGroup.open(currencyDetail);
+	Forex.navGroup.open(currencyDetail);
 	// get the custom object for this pair from ACS
 	
 	// display the currency value, 
@@ -161,10 +167,10 @@ vertLayout.add(stockList);
 
 currencyListWindow.add(vertLayout);
 
-var navGroup = Ti.UI.iPhone.createNavigationGroup({
+Forex.navGroup = Ti.UI.iPhone.createNavigationGroup({
 	window:currencyListWindow
 });
-win1.add(navGroup);
+win1.add(Forex.navGroup);
 
 Ti.include('analytics.js');
 var analytics = new Analytics('UA-37362038-1');  

@@ -21,7 +21,21 @@ function forexCommentaryView() {
 			rate:theRate
 		});
 	
-		navGroup.open(riskVw);
+		Forex.navGroup.open(riskVw);
+	});
+	
+	var pinbar = Ti.UI.createButton({title: 'Pin Bar Entry'});
+	pinbar.addEventListener('click', function(e) {
+		var PBVw = require('view/pinbarentry');
+		var pbVw = new PBVw();
+	
+		pbVw.fireEvent('popPinBar', {
+			pair:thePair,
+			risk:1,
+			rate: theRate
+		});
+	
+		Forex.navGroup.open(pbVw);
 	});
 	
 	var commentary = Ti.UI.createTextArea({
@@ -52,7 +66,7 @@ function forexCommentaryView() {
 		var moment = require('moment');
 
 		for (var i in _args) {
-console.log(_args[i]);
+
 			var tableRow = Ti.UI.createTableViewRow({
 				height: 70,
 				className: 'CommentaryRow',
@@ -123,6 +137,7 @@ console.log(_args[i]);
 	
 	mainVw.add(title);
 	mainVw.add(riskReward);
+	mainVw.add(pinbar);
 	mainVw.add(commentary);
 	mainVw.add(latestCommentary);
 	
