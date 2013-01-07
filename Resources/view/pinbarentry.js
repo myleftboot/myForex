@@ -20,16 +20,20 @@ function pinBarEntryView() {
                   LINEWDTH: 2,
                   BULLNAME: 'Bullish Pin',
                   BEARNAME: 'Bearish Pin',
-                  lEntry:   Ti.UI.createLabel({text : 0
+                  thePinBar: null,
+                  entryLbl:   Ti.UI.createLabel({text : 0
                                               ,textAlign: Ti.UI.TEXT_ALIGNMENT_CENTER
-                                              ,color:     pb.SLCOL}),
-                  lLotSize: Ti.UI.createLabel({text : 0
+                                              ,color:     'red'}),
+                  lotSizeLbl: Ti.UI.createLabel({text : 0
                                               ,textAlign: Ti.UI.TEXT_ALIGNMENT_CENTER
-                                              ,color:     pb.SLCOL}),
-                  lEntry:   Ti.UI.createView({
+                                              ,color:     'red'}),
+                  takeProfitLbl:Ti.UI.createLabel({text : 0
+                                              ,textAlign: Ti.UI.TEXT_ALIGNMENT_CENTER
+                                              ,color:     'red'}),
+                  vEntry:   Ti.UI.createView({
                                      width:            '100%',
-                                     height:           pb.LINEWDTH,
-                                     backgroundColor:  pb.ENTRYCOL
+                                     height:           2,
+                                     backgroundColor:  'green'
                                     }),
                 };
 
@@ -64,90 +68,112 @@ function pinBarEntryView() {
                                                       top           : iPBTop.value,
                                                       bottom        : iPBBtm.value,
                                                       bull          : bull});
-            pb.lEntry.text = retrace;
-            pb.lLotSize.text = rr.calculateNxRiskReward({
+            pb.entryLbl.text = retrace;
+
+            pb.lotSizeLbl.text = rr.calculatePositionSize({
+                                                     pair            : pair,
+                                                     risk            : 50,
+                                                     stopLoss        : iStopLoss.value,
+                                                     entryPoint      : retrace
+                                                     });  
+                                                     
+            pb.takeProfitLbl.text = rr.calculateNxRiskReward({
                                                      pair            : pair,
                                                      RR              : 2,
                                                      stopLoss        : iStopLoss.value,
                                                      entryPoint      : retrace
-                                                     }));  
-            
-            
-            
-            
+                                                     });  
+
             updateEntryPointIndicator(_args);
 
         }
         
         function updateEntryPointIndicator(_args) {
-          pinbarVw.remove(lEntry);
+          pinbarVw.remove(pb.vEntry);
           if (_args.retracement != 0) {
             if (bull) {
               // retracement is from top
-              lEntry.top = String.format("%2f", _args.retracement)+'%';
+              pb.vEntry.top = String.format("%2f", (_args.retracement*0.8)+10)+'%';
             } else {
-              lEntry.bottom = String.format("%2f", _args.retracement)+'%';
+              pb.vEntry.top = String.format("%2f", (80 - (_args.retracement*0.8))+10)+'%';
             }
-            pinbarVw.add(lEntry);
+            pinbarVw.add(pb.vEntry);
           } 
           
         }
         
         function drawTakeProfitView(_args) {
-            var takeProfitVw  = Ti.UI.createView({layout:'horizontal'});
+            var profitVw  = Ti.UI.createView({layout:'horizontal'});
             
-            var entryPointVw = Ti.UI.createView({layout:'vertical'});
-            var lotSizeVw    = Ti.UI.createView({layout:'vertical'});
+            var entryPointVw = Ti.UI.createView({layout:'vertical',
+                                                 width:'33%'});
+            var lotSizeVw    = Ti.UI.createView({layout:'vertical',
+                                                 width:'33%'});
+            var takeProfitVw = Ti.UI.createView({layout:'vertical',
+                                                 width:'33%'});
             
             var lEntry = Ti.UI.createLabel({
 	                                    text: 'Entry Point',
-                                            width: '100%',
+	                                    height: '30%',
+	                                          top: 0,
+	                                          textAlign: Ti.UI.TEXT_ALIGNMENT_CENTER
+                                      });
+
+            var lLotSize = Ti.UI.createLabel({
+	                                    text: 'Lot Size',
 	                                    height: '30%',
 	                                          top: 0,
 	                                          textAlign: Ti.UI.TEXT_ALIGNMENT_CENTER
                                       });
                                       
-            var lLotSize = Ti.UI.createLabel({
-	                                    text: 'Lot Size',
-                                            width: '100%',
+            var lTakeProfit = Ti.UI.createLabel({
+	                                    text: '2x Take Profit',
 	                                    height: '30%',
 	                                          top: 0,
 	                                          textAlign: Ti.UI.TEXT_ALIGNMENT_CENTER
                                       });
             entryPointVw.add(lEntry);
-            entryPointVw.add(pb.lEntry);
+            entryPointVw.add(pb.entryLbl);
             lotSizeVw.add(lLotSize);
-            lotSizeVw.add(pb.lLotSize);
-            takeProfitVw.add(entryPointVw);
-            takeProfitVw.add(lotSizeVw);
-            return takeProfitVw;
+            lotSizeVw.add(pb.lotSizeLbl);
+            takeProfitVw.add(lTakeProfit);
+            takeProfitVw.add(pb.takeProfitLbl);
+            profitVw.add(entryPointVw);
+            profitVw.add(lotSizeVw);
+            profitVw.add(takeProfitVw);
+            return profitVw;
         }
         
         function processTableClick(_args) {
           // if the rowSource is the bull indicator then switch from bull to bear
-          if (_args.rowData.title = pb.BULLNAME) {
-              positionSize.updateRow(e.index, 
+          if (_args.rowData.title == pb.BULLNAME) {
+              positionSize.updateRow(_args.index, 
                                      createTableRow({title: pb.BEARNAME}),
                                      {animated : true}
                                     );
               bull = false;
-              pinbarVw.add(drawPB({bull:bull}));
+              pinbarVw.remove(pb.thePinBar);
+              pb.thePinBar = drawPB({bull:bull});
+              pinbarVw.add(pb.thePinBar);
           }
-          if (_args.rowData.title = pb.BEARNAME) {
-              positionSize.updateRow(e.index, 
+          if (_args.rowData.title == pb.BEARNAME) {
+              positionSize.updateRow(_args.index, 
                                      createTableRow({title: pb.BULLNAME}),
                                      {animated : true}
                                     );
               bull = true;
-              pinbarVw.add(drawPB({bull:bull}));
+              pinbarVw.remove(pb.thePinBar);
+              pb.thePinBar = drawPB({bull:bull});
+              pinbarVw.add(pb.thePinBar);
           }
+          updateEntryPointIndicator({retracement: iRetracement.value});
         }
         
         function processRetracementChange(_args) {
             // update the label
-            lRetracement.text = String.format("%3.1f", e.value);
+            lRetracement.text = String.format("%3.1f", _args.value);
             // compute the take profit position
-            computeEntryParams({retracement: e.value});
+            computeEntryParams({retracement: _args.value});
         }
         
         // Arguments - vw the view, bull - a bullish (true) or bearish (false) pin bar
@@ -266,7 +292,7 @@ function pinBarEntryView() {
         // process any clicks on the table
         positionSize.addEventListener('click', function(e) {
            processTableClick(e);
-        };
+        });
         
 	// add the eventListeners
 
@@ -289,7 +315,8 @@ function pinBarEntryView() {
 		pair = _args.pair;
 		risk = _args.risk;
 		rate = _args.rate
-		pinbarVw.add(drawPB({bull:bull}));
+		pb.thePinBar = drawPB({bull:bull});
+		pinbarVw.add(pb.thePinBar);
 		popDefaults();
 	});
     

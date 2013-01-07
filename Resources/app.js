@@ -18,7 +18,6 @@ function fetchValues(_args) {
 		}
 		// lose the first character ','
 		currencies = currencies.substr(1);
-
 		var theYql = 'SELECT * from yahoo.finance.xchange WHERE pair IN (' + currencies + ')';
 
 		// send the query off to yahoo
@@ -46,14 +45,14 @@ function updateCurrencies(_args) {
 
 function createRow(_args) {
                 var tableRow = Ti.UI.createTableViewRow({
-			height: 70,
+			height: 50,
 			className: 'RSSRow',
 			hasDetail: true,
 		});
 		var layout = Ti.UI.createView({});
 
 		var pair = Ti.UI.createLabel({
-			text: _args.pair
+			text: _args.pair,
 			color: '#000',
 			height: 50,
 			font: {
@@ -65,7 +64,7 @@ function createRow(_args) {
 		var value = Ti.UI.createLabel({
 			text:  _args.rate,
 			color: 'blue',
-			height: 70,
+			height: 50,
 			font: {
 				fontSize: 16
 			},
@@ -87,12 +86,14 @@ function populateTableWithPairs() {
 	var tabRows = [];
 	
 	var db = require('common/currencydb');
-	for (var dbVal in db.selectPairs()) {
+	var pairs = db.selectPairs()
+	for (var dbVal in pairs) {
 
                 // we dont know the currency values at this stage so just push the pairings
                 // we should store the latest values in the local database and populate the table with them here
-		tabRows.push(createRow({pair: dbVal.pair
-		                       ,rate: dbVal.lastRate}));
+
+		tabRows.push(createRow({pair: pairs[dbVal].pair
+		                       ,rate: pairs[dbVal].lastRate}));
 	}
 	return tabRows;
 }
@@ -114,13 +115,6 @@ function showCurrencyDetail(_args) {
 		});
 
 	Forex.navGroup.open(currencyDetail);
-	// get the custom object for this pair from ACS
-
-	// display the currency value, 
-
-	// store a timestamp of the current value key value pairs?
-
-	// Add any commentary, and valid flag
 
 };
 
@@ -180,8 +174,12 @@ Ti.App.addEventListener('app:analytics_trackEvent', function(e){
 analytics.start(5);
 Ti.App.fireEvent('app:analytics_trackPageview', {pageUrl: 'Front'});
 
+var r = require('common/windowButtons');
+var rightButton = r.rightNavButton({click: refreshCurrencies});
+win1.rightNavButton = rightButton;
+	
 win1.open();
-
+refreshCurrencies();
 Ti.Network.registerForPushNotifications({
   types: [
     Ti.Network.NOTIFICATION_TYPE_BADGE,

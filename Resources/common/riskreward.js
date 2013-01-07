@@ -140,8 +140,9 @@ function calculateNxRiskReward(_args) {
 
     try {
 // multiply up the entry and stop loss values to get a integer
-      var stopLoss = parseInt(_args.stopLoss) * divisor;
-      var entryPoint = parseInt(_args.entryPoint) * divisor;
+      var stopLoss = parseFloat(_args.stopLoss) * divisor;
+      var entryPoint = parseFloat(_args.entryPoint) * divisor;
+      console.log('S'+stopLoss+'E'+entryPoint);
 // now work out the number of pips
       var pointsToStop = parseInt(Math.abs(stopLoss - entryPoint));
       console.log('Points to stop'+pointsToStop);
@@ -180,9 +181,10 @@ function determineRetracement(_args) {
   // if this is YEN or GOLD or SILVER then multiply by 100 otherwise 10000
   var pipPos = getPip(_args.pair);
   var divisor = Math.pow(10,pipPos);
-
-  if (_args.pair && _args.retracement && _args.top && _args.bottom) {
-
+  
+  if (_args.retracement == 0) return (_args.bull) ? _args.top : _args.bottom;
+  if (_args.pair && _args.top && _args.bottom) {
+  
     try {
 // multiply up the entry and stop loss values to get a integer
       var top = parseFloat(_args.top) * divisor;
@@ -193,17 +195,11 @@ function determineRetracement(_args) {
       	bottom = parseFloat(_args.top) * divisor;
       }
 
-// now work out the number of pips
-      var range = parseInt(Math.abs(top - bottom));
-      console.log('range'+range);
-
 // if _args.retracement > 1 then it must be a percentage, otherwise its absolute
-      var percentageR = (parseFloat(_args.retracement) > 1)? (parseFloat(_args.retracement) / 100) : parseFloat(_args.retracement);
-      console.log('PercentageR'+ percentageR);
+      var percentageR = parseFloat(_args.retracement) / 100;
       if (_args.bull) retracement = ((top - ((top - bottom) * percentageR)) / divisor).toFixed(pipPos);
       else retracement = ((bottom + ((top - bottom) * percentageR)) / divisor).toFixed(pipPos);
 
-      console.log('retracement '+retracement);
     } catch (e) {console.log(e)};
   }
   return retracement;

@@ -4,18 +4,28 @@
 
 // need to have last rate and selected added to table
 
-var db = Ti.Database.install('db/currencies.sqlite', 'currencies');
+function makePair(_args) {
+	return _args.replace(' to ', '');
+}
 
 function selectPairs(_args) {
-  
-	var sql = 'SELECT base||counter pair FROM currencies';
-	var data = db.execute(sql);
+    var db = Ti.Database.install('db/currencies.sqlite', 'currencies');
+	var sql = 'SELECT base||counter pair, lastrate FROM currencies';
+	try {
+		var data = db.execute(sql);
+	} catch(e) {
+		try {
+			db.execute('ALTER TABLE currencies ADD COLUMN lastrate number;');
+		} catch (e) {console.log(e)}
+		var sql = 'SELECT base||counter pair, lastrate FROM currencies';
+	}
+	
 
 	var pairs = [];
 	while (data.isValidRow()) {
-		data.next();
 		pairs.push({pair:      data.fieldByName('pair'),
-		            lastRate:  '1.0000'});
+		            lastRate:  data.fieldByName('lastrate')});
+		data.next();
 	}
 
 	data.close();
@@ -26,9 +36,20 @@ function selectPairs(_args) {
 exports.selectPairs = selectPairs;
 
 function updateRate(_args) {
+	var pair = makePair(_args.pair);
+	var db = Ti.Database.install('db/currencies.sqlite', 'currencies');
     if (_args.rate && _args.pair) {
-	var sql = 'UPDATE currencies SET lastrate = "'+_args.rate+'" WHERE base||counter = "'+_args.pair+'";';
-	db.execute(sql);
+	var sql = 'UPDATE currencies SET lastrate = "'+_args.rate+'" WHERE base||counter = "'+pair+'";';
+	try {
+		db.execute(sql);
+	} catch (e) {
+		try {
+			console.warn('here');
+			db.execute('ALTER TABLE currencies ADD COLUMN lastrate number;');
+		} catch (e) {console.log(e)}
+		db.execute(sql);
+	}
+	
 	db.close();
     }
 }
