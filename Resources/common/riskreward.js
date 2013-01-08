@@ -1,3 +1,4 @@
+
 // Risk Reward Calculations
 // Darren Cope - (C) Cope Consultancy Services 2013
 
@@ -8,40 +9,14 @@ function getCounter(pair) {
 
 function getPip(pair) {
 
-  switch(getCounter(pair))
-  {
-	// this could change on different brokers, make it a setting
-    case 'USD':
-      return 5;
-      break;
-    case 'JPY':
-      return 3;
-      break;
-    case 'CHF':
-      return 5;
-      break;
-    default:
-      alert('Cannot determine pair '+pair);
-   }	
+    var cdb = require('common/currencydb');
+    return cdb.getPipDP({counter: getCounter(pair)});	
 };
 
 function convertToCounter(pair) {
-
-  switch(getCounter(pair))
-  {
-	// need to get the live exchange rates
-    case 'USD':
-      return 1.6274;
-      break;
-    case 'JPY':
-      return 137.32;
-      break;
-    case 'CHF':
-      return 1.48;
-      break;
-    default:
-      return 1;
-   }
+    var cdb = require('common/currencydb');
+    return cdb.getRate({base   : 'GBP'   // should have a settings screen where the defualt account currency is set
+		       ,counter: getCounter(pair)});
 };
 
 function dumpParams(_args, func) {
@@ -56,7 +31,7 @@ function dumpParams(_args, func) {
     if (_args.stopLoss) {console.log('stopLoss '+ _args.stopLoss)};
     if (_args.entryPoint) {console.log('entryPoint '+ _args.entryPoint)};
     console.log('*** Done ***');
-	
+
 };
 
 // Public
